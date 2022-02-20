@@ -335,7 +335,11 @@ kube_ps1() {
   local KUBE_PS1
   local KUBE_PS1_RESET_COLOR="${_KUBE_PS1_OPEN_ESC}${_KUBE_PS1_DEFAULT_FG}${_KUBE_PS1_CLOSE_ESC}"
 
+  [[ "${KUBE_PS1_CONTEXT}" == "N/A" ]] && return
+
+  # shorten context if > 15 characters
   KUBE_PS1_CONTEXT=$(echo $KUBE_PS1_CONTEXT | sed -E "s/(.{15}).*$/|1.../")
+
   KUBE_PS1+="$(_kube_ps1_color_fg $KUBE_PS1_CTX_COLOR)${KUBE_PS1_CONTEXT}${KUBE_PS1_RESET_COLOR}"
   KUBE_PS1+="$(_kube_ps1_color_fg ${KUBE_PS1_SYMBOL_COLOR})$(_kube_ps1_symbol)${KUBE_PS1_RESET_COLOR}"
   KUBE_PS1+="$(_kube_ps1_color_fg ${KUBE_PS1_NS_COLOR})${KUBE_PS1_NAMESPACE}${KUBE_PS1_RESET_COLOR}"
@@ -345,45 +349,3 @@ kube_ps1() {
   echo "${KUBE_PS1}"
 }
 
-kube_ps1_bak() {
-  [[ "${KUBE_PS1_ENABLED}" == "off" ]] && return
-  [[ -z "${KUBE_PS1_CONTEXT}" ]] && [[ "${KUBE_PS1_CONTEXT_ENABLE}" == true ]] && return
-
-  local KUBE_PS1
-  local KUBE_PS1_RESET_COLOR="${_KUBE_PS1_OPEN_ESC}${_KUBE_PS1_DEFAULT_FG}${_KUBE_PS1_CLOSE_ESC}"
-
-  # Background Color
-  [[ -n "${KUBE_PS1_BG_COLOR}" ]] && KUBE_PS1+="$(_kube_ps1_color_bg ${KUBE_PS1_BG_COLOR})"
-
-  # Prefix
-  [[ -n "${KUBE_PS1_PREFIX}" ]] && KUBE_PS1+="${KUBE_PS1_PREFIX}"
-
-  # Symbol
-  #KUBE_PS1+="$(_kube_ps1_color_fg $KUBE_PS1_SYMBOL_COLOR)$(_kube_ps1_symbol)${KUBE_PS1_RESET_COLOR}"
-
-  #if [[ -n "${KUBE_PS1_SEPARATOR}" ]] && [[ "${KUBE_PS1_SYMBOL_ENABLE}" == true ]]; then
-  #  KUBE_PS1+="${KUBE_PS1_SEPARATOR}"
-  #fi
-
-  # Context
-  if [[ "${KUBE_PS1_CONTEXT_ENABLE}" == true ]]; then
-    KUBE_PS1_CONTEXT=$(echo $KUBE_PS1_CONTEXT | sed -E "s/(.{15}).*$/|1.../")
-    KUBE_PS1+="$(_kube_ps1_color_fg $KUBE_PS1_CTX_COLOR)${KUBE_PS1_CONTEXT}${KUBE_PS1_RESET_COLOR}"
-  fi
-
-  # Namespace
-  if [[ "${KUBE_PS1_NS_ENABLE}" == true ]]; then
-    if [[ -n "${KUBE_PS1_DIVIDER}" ]] && [[ "${KUBE_PS1_CONTEXT_ENABLE}" == true ]]; then
-      KUBE_PS1+="$(_kube_ps1_color_fg ${KUBE_PS1_SYMBOL_COLOR})$(_kube_ps1_symbol)${KUBE_PS1_RESET_COLOR}"
-    fi
-    KUBE_PS1+="$(_kube_ps1_color_fg ${KUBE_PS1_NS_COLOR})${KUBE_PS1_NAMESPACE}${KUBE_PS1_RESET_COLOR}"
-  fi
-
-  # Suffix
-  [[ -n "${KUBE_PS1_SUFFIX}" ]] && KUBE_PS1+="${KUBE_PS1_SUFFIX}"
-
-  # Close Background color if defined
-  [[ -n "${KUBE_PS1_BG_COLOR}" ]] && KUBE_PS1+="${_KUBE_PS1_OPEN_ESC}${_KUBE_PS1_DEFAULT_BG}${_KUBE_PS1_CLOSE_ESC}"
-
-  echo "${KUBE_PS1}"
-}
